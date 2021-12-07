@@ -26,7 +26,7 @@ steps:
     displayName: Login to ACR
     inputs:
       command: login
-      containerRegistry: dockerRegistryServiceConnection1
+      containerRegistry: "AGIC Registry"
 
   - script: make build-image-multi-arch IMAGE_VERSION=$(build.buildid)
     workingDirectory: "$(modulePath)"
