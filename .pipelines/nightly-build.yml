@@ -39,6 +39,8 @@ steps:
       command: login
       containerRegistry: "AGIC Registry"
 
-  - script: make build-image-multi-arch IMAGE_VERSION=$(build.buildid)
+  - script: |
+      docker buildx create --use
+      make build-image-multi-arch IMAGE_VERSION=$(build.buildid)
     workingDirectory: "$(modulePath)"
     displayName: "Build nighty build image"
