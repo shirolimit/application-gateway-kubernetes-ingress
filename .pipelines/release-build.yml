@@ -1,7 +1,12 @@
-trigger:
-  tags:
+schedules:
+- cron: "0 10 * * *"
+  displayName: Daily at 10 am build
+  branches:
     include:
-    - '*'
+    - master
+  always: true
+
+trigger: none
 
 pr: none
 
@@ -17,4 +22,25 @@ variables:
   GO_PROJ: 'github.com/Azure/$(build.repository.name)'
 
 steps:
-- template: build-image.yml
+  - script: |
+      mkdir -p '$(GOBIN)'
+      mkdir -p '$(GOPATH)/pkg'
+      mkdir -p '$(modulePath)'
+      shopt -s extglob
+      shopt -s dotglob
+      mv !(gopath) '$(modulePath)'
+      echo '##vso[task.prependpath]$(GOBIN)'
+      echo '##vso[task.prependpath]$(GOROOT)/bin'
+    displayName: "Set up the Go workspace"
+
+  - task: Docker@2
+    displayName: Login to ACR
+    inputs:
+      command: login
+      containerRegistry: "AGIC Registry"
+
+  - script: |
+      docker buildx create --use
+      make build-image-multi-arch RELEASE_IMAGE=true
+    workingDirectory: "$(modulePath)"
+    displayName: "Build nighty build image"

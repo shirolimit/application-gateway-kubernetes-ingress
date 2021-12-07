@@ -3,7 +3,7 @@ PROJECT_NAME := application-gateway-kubernetes-ingress
 REPO_PATH = ${ORG_PATH}/${PROJECT_NAME}
 
 VERSION_VAR = ${REPO_PATH}/pkg/version.Version
-VERSION ?= $(shell git describe --abbrev=0 --tags)
+BUILD_TAG ?= $(shell git describe --abbrev=0 --tags)
 
 DATE_VAR = ${REPO_PATH}/pkg/version.BuildDate
 BUILD_DATE ?= $(shell date +%Y-%m-%d-%H:%MT%z)
@@ -18,7 +18,7 @@ GARCH ?= arm64
 BUILD_BASE_IMAGE ?= golang:1.17.3
 
 REPO ?= appgwreg.azurecr.io
-IMAGE_NAME = public/azure-application-gateway/kubernetes-ingress
+IMAGE_NAME = public/azure-application-gateway/kubernetes-ingress-staging
 IMAGE = ${REPO}/${IMAGE_NAME}
 
 IMAGE_RESULT_FLAG = --output=type=oci,dest=$(shell pwd)/image/ingress-agic-$(VERSION).tar
@@ -26,11 +26,15 @@ ifeq ($(PUSH_IMAGE), true)
 	IMAGE_RESULT_FLAG = --push
 endif
 
+ifeq ($(RELEASE_IMAGE), true)
+	IMAGE_NAME = public/azure-application-gateway/kubernetes-ingress
+endif
+
 # Platforms to build the multi-arch image for.
 IMAGE_PLATFORMS ?= linux/amd64,linux/arm64
 
 GO_BUILD_VARS = \
-	${REPO_PATH}/pkg/version.Version=${VERSION} \
+	${REPO_PATH}/pkg/version.Version=${BUILD_TAG} \
 	${REPO_PATH}/pkg/version.BuildDate=${BUILD_DATE} \
 	${REPO_PATH}/pkg/version.GitCommit=${GIT_HASH}
 
@@ -40,11 +44,11 @@ TAG_LATEST ?= false
 
 ifeq ($(TAG_LATEST), true)
 	IMAGE_TAGS = \
-		--tag $(IMAGE):$(IMAGE_VERSION) \
+		--tag $(IMAGE):$(BUILD_TAG) \
 		--tag $(IMAGE):latest
 else
 	IMAGE_TAGS = \
-		--tag $(IMAGE):$(IMAGE_VERSION)
+		--tag $(IMAGE):$(BUILD_TAG)
 endif
 
 build-image-multi-arch:
@@ -52,7 +56,7 @@ build-image-multi-arch:
 	@docker buildx build $(IMAGE_RESULT_FLAG) \
 		--platform $(IMAGE_PLATFORMS) \
 		--build-arg "BUILD_BASE_IMAGE=$(BUILD_BASE_IMAGE)" \
-		--build-arg "VERSION=$(VERSION)" \
+		--build-arg "BUILD_TAG=$(BUILD_TAG)" \
 		--build-arg "BUILD_DATE=$(BUILD_DATE)" \
 		--build-arg "GIT_HASH=$(GIT_HASH)" \
 		$(IMAGE_TAGS) \

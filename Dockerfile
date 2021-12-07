@@ -12,7 +12,7 @@ RUN apt-get install -y ca-certificates openssl
 
 ARG TARGETOS
 ARG TARGETARCH
-ARG VERSION
+ARG BUILD_TAG
 ARG BUILD_DATE
 ARG GIT_HASH
 
@@ -23,7 +23,7 @@ COPY Makefile Makefile
 RUN make build \
     GOOS=${TARGETOS} \
     GOARCH=${TARGETARCH} \
-    VERSION=${VERSION} \
+    BUILD_TAG=${BUILD_TAG} \
     BUILD_DATE=${BUILD_DATE} \
     GIT_HASH=${GIT_HASH}
 

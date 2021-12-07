@@ -41,6 +41,6 @@ steps:
 
   - script: |
       docker buildx create --use
-      make build-image-multi-arch IMAGE_VERSION=$(build.buildid)
+      make build-image-multi-arch BUILD_TAG=$(build.buildid) PUSH_IMAGE=true
     workingDirectory: "$(modulePath)"
     displayName: "Build nighty build image"
