@@ -17,4 +17,4 @@ variables:
   GO_PROJ: 'github.com/Azure/$(build.repository.name)'
 
 steps:
-- template: build.yml
+- template: build-image.yml

@@ -1,0 +1,10 @@
+# This contains common build steps
+
+steps:
+  - script: login
+    workingDirectory: "$(modulePath)"
+    displayName: "Go and Helm lint check"
+
+  - script: build and push
+    workingDirectory: "$(modulePath)"
+    displayName: "Build and push"
