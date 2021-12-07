@@ -44,3 +44,17 @@ steps:
       make build-image-multi-arch RELEASE_IMAGE=true
     workingDirectory: "$(modulePath)"
     displayName: "Build nighty build image"
+
+  - task: CopyFiles@2
+    inputs:
+      contents: |
+        $(GOBIN)/appgw-ingress
+        $(modulePath)/dockerfiles/deploy.Dockerfile
+        $(modulePath)/scripts/**
+        $(modulePath)/helm/**
+    targetFolder: $(Build.ArtifactStagingDirectory)
+
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: $(Build.ArtifactStagingDirectory)
+      artifactName: drop
