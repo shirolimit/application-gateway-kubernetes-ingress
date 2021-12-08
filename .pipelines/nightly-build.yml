@@ -52,7 +52,7 @@ steps:
         $(modulePath)/dockerfiles/deploy.Dockerfile
         $(modulePath)/scripts/**
         $(modulePath)/helm/**
-    targetFolder: $(Build.ArtifactStagingDirectory)
+      targetFolder: $(Build.ArtifactStagingDirectory)
 
   - task: PublishBuildArtifacts@1
     inputs:
