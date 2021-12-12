@@ -30,6 +30,8 @@ RUN make build \
 #RUN ldd ./bin/appgw-ingress 2>&1 | grep 'not a dynamic executable'
 
 FROM ubuntu:20.04 AS final
+RUN apt-get update
+RUN apt-get install -y ca-certificates openssl
 COPY --from=build /azure/bin/appgw-ingress /appgw-ingress
 RUN useradd appgw-ingress-user
 RUN chown appgw-ingress-user /appgw-ingress
