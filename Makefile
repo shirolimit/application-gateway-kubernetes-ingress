@@ -53,6 +53,7 @@ endif
 
 build-image-multi-arch:
 	@mkdir -p $(shell pwd)/image
+	@docker run --rm --privileged linuxkit/binfmt:v0.8
 	@docker buildx build $(IMAGE_RESULT_FLAG) \
 		--platform $(IMAGE_PLATFORMS) \
 		--build-arg "BUILD_BASE_IMAGE=$(BUILD_BASE_IMAGE)" \
