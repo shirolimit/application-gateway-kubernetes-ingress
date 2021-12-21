@@ -370,6 +370,37 @@ var _ = ginkgo.Describe("K8scontext", func() {
 			Expect(ctxt.IsEndpointReferencedByAnyIngress(endpoints)).To(BeTrue(), "Expected is endpoints is selected by the service and ingress.")
 		})
 
+		ginkgo.It("should be able to select endpoints for default backend", func() {
+			// start context for syncing
+			runErr := ctxt.Run(stopChannel, true, environment.GetFakeEnv())
+			Expect(runErr).ToNot(HaveOccurred())
+
+			endpoints := tests.NewEndpointsFixture()
+			endpoints.Namespace = ingressNS
+			endpoints.Name = tests.DefaultServiceName
+
+			// create a POD with labels
+			_, err := k8sClient.CoreV1().Endpoints(ingressNS).Create(context.TODO(), endpoints, metav1.CreateOptions{})
+			Expect(err).ToNot(HaveOccurred(), "Unable to create endpoints resource due to: %v", err)
+
+			// create a service with label
+			servicePort := tests.NewServicePortsFixture()
+			service := tests.NewServiceFixture(*servicePort...)
+			service.Namespace = ingressNS
+			service.Name = tests.DefaultServiceName
+			_, err = k8sClient.CoreV1().Services(ingressNS).Create(context.TODO(), service, metav1.CreateOptions{})
+			Expect(err).ToNot(HaveOccurred(), "Unable to create service resource due to: %v", err)
+
+			// wait for sync
+			waitContextSync(ctxt, ingress, service, endpoints)
+
+			// check that ctxt synced the service
+			Expect(len(ctxt.ListServices())).To(Equal(1), "Context was not able to sync in time")
+
+			// run IsPodReferencedByAnyIngress: true
+			Expect(ctxt.IsEndpointReferencedByAnyIngress(endpoints)).To(BeTrue(), "Expected is endpoints is selected by the service and ingress.")
+		})
+
 		ginkgo.It("should be able to skip unrelated endpoints", func() {
 			// start context for syncing
 			runErr := ctxt.Run(stopChannel, true, environment.GetFakeEnv())

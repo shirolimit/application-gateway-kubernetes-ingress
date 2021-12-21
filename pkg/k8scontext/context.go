@@ -849,6 +849,11 @@ func (c *Context) listServicesByPodSelector(pod *v1.Pod) []*v1.Service {
 
 func (c *Context) isServiceReferencedByAnyIngress(service *v1.Service) bool {
 	for _, ingress := range c.ListHTTPIngresses() {
+		defaultBackend := ingress.Spec.DefaultBackend
+		if defaultBackend != nil && (defaultBackend.Service.Name == service.Name) {
+			return true
+		}
+
 		for _, rule := range ingress.Spec.Rules {
 			if rule.HTTP == nil {
 				continue

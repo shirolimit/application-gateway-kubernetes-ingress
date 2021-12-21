@@ -35,6 +35,7 @@ const (
 	WildcardHost2                = "hola.com"
 	NameOfSecret                 = "--the-name-of-the-secret--"
 	ServiceName                  = "--service-name--"
+	DefaultServiceName           = "--default-service-name--"
 	NodeName                     = "--node-name--"
 	URLPath1                     = "/api1"
 	URLPath2                     = "/api2"
@@ -609,6 +610,14 @@ func NewIngressTestFixture(namespace string, ingressName string) networking.Ingr
 			},
 		},
 		Spec: networking.IngressSpec{
+			DefaultBackend: &networking.IngressBackend{
+				Service: &networking.IngressServiceBackend{
+					Name: DefaultServiceName,
+					Port: networking.ServiceBackendPort{
+						Number: 80,
+					},
+				},
+			},
 			Rules: []networking.IngressRule{
 				{
 					Host: "hello.com",
